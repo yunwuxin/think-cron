@@ -16,7 +16,7 @@
         "jenssegers/date": "^3.2"
     },
     "require-dev": {
-        "topthink/framework": "dev-master"
+        "topthink/framework": "^5.0"
     },
     "autoload": {
         "psr-4": {
