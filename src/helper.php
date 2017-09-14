@@ -1,5 +1,9 @@
 <?php
 
+use yunwuxin\cron\command\Run;
+use yunwuxin\cron\command\Schedule;
+
 \think\Console::addDefaultCommands([
-    "\\yunwuxin\\cron\\command\\Run",
+    Run::class,
+    Schedule::class
 ]);
