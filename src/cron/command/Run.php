@@ -2,10 +2,10 @@
 
 namespace yunwuxin\cron\command;
 
-use think\Config;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
+use think\facade\Config;
 use yunwuxin\cron\Task;
 
 class Run extends Command
