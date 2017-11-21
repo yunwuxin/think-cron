@@ -2,6 +2,7 @@
 
 namespace yunwuxin\cron\command;
 
+use Jenssegers\Date\Date;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -34,6 +35,8 @@ class Run extends Command
                     }
 
                     $task->run();
+
+                    $output->writeln("Task {$taskClass} run at " . Date::now());
                 }
 
             }
