@@ -24,6 +24,9 @@ abstract class Task
     /** @var int 最大执行时间(重叠执行检查用) */
     public $expiresAt = 1440;
 
+    /** @var bool 分布式部署 是否仅在一台服务器上运行 */
+    public $onOneServer = false;
+
     protected $filters = [];
     protected $rejects = [];
 
@@ -99,7 +102,7 @@ abstract class Task
     /**
      * 任务标识
      */
-    protected function mutexName()
+    public function mutexName()
     {
         return 'task-' . sha1(static::class);
     }
@@ -147,5 +150,12 @@ abstract class Task
         return $this->skip(function () {
             return $this->existsMutex();
         });
+    }
+
+    public function onOneServer()
+    {
+        $this->onOneServer = true;
+
+        return $this;
     }
 }
