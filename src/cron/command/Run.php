@@ -2,17 +2,22 @@
 
 namespace yunwuxin\cron\command;
 
+use Jenssegers\Date\Date;
+use think\facade\Cache;
+use think\facade\Config;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\facade\Config;
 use yunwuxin\cron\Task;
 
 class Run extends Command
 {
+    /** @var Date */
+    protected $startedAt;
 
     protected function configure()
     {
+        $this->startedAt = Date::now();
         $this->setName('cron:run');
     }
 
@@ -33,10 +38,47 @@ class Run extends Command
                         continue;
                     }
 
-                    $task->run();
+                    if ($task->onOneServer) {
+                        $this->runSingleServerTask($task);
+                    } else {
+                        $this->runTask($task);
+                    }
+
+                    $output->writeln("Task {$taskClass} run at " . Date::now());
                 }
 
             }
         }
+    }
+
+    /**
+     * @param $task Task
+     * @return bool
+     */
+    protected function serverShouldRun($task)
+    {
+        $key = $task->mutexName() . $this->startedAt->format('Hi');
+        if (Cache::has($key)) {
+            return false;
+        }
+        Cache::set($key, true, 60);
+        return true;
+    }
+
+    protected function runSingleServerTask($task)
+    {
+        if ($this->serverShouldRun($task)) {
+            $this->runTask($task);
+        } else {
+            $this->output->writeln('<info>Skipping task (has already run on another server):</info> ' . get_class($task));
+        }
+    }
+
+    /**
+     * @param $task Task
+     */
+    protected function runTask($task)
+    {
+        $task->run();
     }
 }
