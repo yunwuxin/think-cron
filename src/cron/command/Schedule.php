@@ -2,10 +2,10 @@
 
 namespace yunwuxin\cron\command;
 
+use Symfony\Component\Process\Process;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\Process;
 
 class Schedule extends Command
 {
@@ -24,7 +24,7 @@ class Schedule extends Command
             $command = 'nohup "' . PHP_BINARY . '" think cron:run >> /dev/null 2>&1 &';
         }
 
-        $process = new Process($command);
+        $process = Process::fromShellCommandline($command);
 
         while (true) {
             $process->run();

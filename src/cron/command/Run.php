@@ -3,8 +3,6 @@
 namespace yunwuxin\cron\command;
 
 use Jenssegers\Date\Date;
-use think\facade\Cache;
-use think\facade\Config;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -23,15 +21,14 @@ class Run extends Command
 
     public function execute(Input $input, Output $output)
     {
-
-        $tasks = Config::get('cron.tasks');
+        $tasks = $this->app->config->get('cron.tasks');
 
         foreach ($tasks as $taskClass) {
 
             if (is_subclass_of($taskClass, Task::class)) {
 
                 /** @var Task $task */
-                $task = new $taskClass();
+                $task = $this->app->invokeClass($taskClass);
                 if ($task->isDue()) {
 
                     if (!$task->filtersPass()) {
@@ -46,7 +43,6 @@ class Run extends Command
 
                     $output->writeln("Task {$taskClass} run at " . Date::now());
                 }
-
             }
         }
     }
@@ -58,10 +54,10 @@ class Run extends Command
     protected function serverShouldRun($task)
     {
         $key = $task->mutexName() . $this->startedAt->format('Hi');
-        if (Cache::has($key)) {
+        if ($this->app->cache->has($key)) {
             return false;
         }
-        Cache::set($key, true, 60);
+        $this->app->cache->set($key, true, 60);
         return true;
     }
 

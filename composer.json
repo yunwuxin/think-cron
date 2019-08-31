@@ -1,7 +1,6 @@
 {
     "name": "yunwuxin/think-cron",
     "description": "计划任务",
-    "type": "think-extend",
     "license": "Apache-2.0",
     "authors": [
         {
@@ -10,25 +9,25 @@
         }
     ],
     "require": {
-        "php": ">=5.6.0",
-        "topthink/think-installer": "^2.0",
+        "topthink/framework": "^6.0",
         "mtdowling/cron-expression": "^1.2",
-        "jenssegers/date": "^3.2"
-    },
-    "require-dev": {
-        "topthink/framework": "^5.1"
+        "jenssegers/date": "^3.2",
+        "symfony/process": "^4.3"
     },
     "autoload": {
         "psr-4": {
             "yunwuxin\\cron\\": "src/cron"
-        },
-        "files": [
-            "src/helper.php"
-        ]
+        }
     },
+    "minimum-stability": "dev",
     "extra": {
-        "think-config": {
-            "cron": "src/config.php"
+        "think": {
+            "config": {
+                "cron": "src/config.php"
+            },
+            "services": [
+                "yunwuxin\\cron\\Service"
+            ]
         }
     }
 }

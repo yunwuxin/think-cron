@@ -30,8 +30,12 @@ abstract class Task
     protected $filters = [];
     protected $rejects = [];
 
-    public function __construct()
+    /** @var Cache */
+    protected $cache;
+
+    public function __construct(Cache $cache)
     {
+        $this->cache = $cache;
         $this->configure();
     }
 
@@ -75,7 +79,6 @@ abstract class Task
         } finally {
             $this->removeMutex();
         }
-
     }
 
     /**
@@ -109,14 +112,14 @@ abstract class Task
 
     protected function removeMutex()
     {
-        return Cache::rm($this->mutexName());
+        return $this->cache->delete($this->mutexName());
     }
 
     protected function createMutex()
     {
         $name = $this->mutexName();
-        if (!Cache::has($name)) {
-            Cache::set($name, true, $this->expiresAt);
+        if (!$this->cache->has($name)) {
+            $this->cache->set($name, true, $this->expiresAt);
             return true;
         }
         return false;
@@ -124,7 +127,7 @@ abstract class Task
 
     protected function existsMutex()
     {
-        return Cache::has($this->mutexName());
+        return $this->cache->has($this->mutexName());
     }
 
     public function when(Closure $callback)
