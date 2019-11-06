@@ -5,7 +5,7 @@ namespace yunwuxin\cron;
 use Closure;
 use Cron\CronExpression;
 use Jenssegers\Date\Date;
-use think\facade\Cache;
+use think\Cache;
 
 abstract class Task
 {
