@@ -2,14 +2,15 @@
 
 namespace yunwuxin\cron;
 
-use Jenssegers\Date\Date;
+use Carbon\Carbon;
+use DateTimeZone;
 
 trait ManagesFrequencies
 {
     /**
      * 设置任务执行周期
      *
-     * @param  string $expression
+     * @param string $expression
      * @return $this
      */
     public function expression($expression)
@@ -22,8 +23,8 @@ trait ManagesFrequencies
     /**
      * 设置区间时间
      *
-     * @param  string $startTime
-     * @param  string $endTime
+     * @param string $startTime
+     * @param string $endTime
      * @return $this
      */
     public function between($startTime, $endTime)
@@ -34,8 +35,8 @@ trait ManagesFrequencies
     /**
      * 排除区间时间
      *
-     * @param  string $startTime
-     * @param  string $endTime
+     * @param string $startTime
+     * @param string $endTime
      * @return $this
      */
     public function unlessBetween($startTime, $endTime)
@@ -46,9 +47,9 @@ trait ManagesFrequencies
     private function inTimeInterval($startTime, $endTime)
     {
         return function () use ($startTime, $endTime) {
-            return Date::now($this->timezone)->between(
-                Date::parse($startTime, $this->timezone),
-                Date::parse($endTime, $this->timezone),
+            return Carbon::now($this->timezone)->between(
+                Carbon::parse($startTime, $this->timezone),
+                Carbon::parse($endTime, $this->timezone),
                 true
             );
         };
@@ -67,7 +68,7 @@ trait ManagesFrequencies
     /**
      * 按小时延期执行
      *
-     * @param  int $offset
+     * @param int $offset
      * @return $this
      */
     public function hourlyAt($offset)
@@ -89,7 +90,7 @@ trait ManagesFrequencies
     /**
      * 指定时间执行
      *
-     * @param  string $time
+     * @param string $time
      * @return $this
      */
     public function at($time)
@@ -100,7 +101,7 @@ trait ManagesFrequencies
     /**
      * 指定时间执行
      *
-     * @param  string $time
+     * @param string $time
      * @return $this
      */
     public function dailyAt($time)
@@ -114,8 +115,8 @@ trait ManagesFrequencies
     /**
      * 每天执行两次
      *
-     * @param  int $first
-     * @param  int $second
+     * @param int $first
+     * @param int $second
      * @return $this
      */
     public function twiceDaily($first = 1, $second = 13)
@@ -231,8 +232,8 @@ trait ManagesFrequencies
     /**
      * 指定每周的时间执行
      *
-     * @param  int    $day
-     * @param  string $time
+     * @param int $day
+     * @param string $time
      * @return $this
      */
     public function weeklyOn($day, $time = '0:0')
@@ -257,8 +258,8 @@ trait ManagesFrequencies
     /**
      * 指定每月的执行时间
      *
-     * @param  int    $day
-     * @param  string $time
+     * @param int $day
+     * @param string $time
      * @return $this
      */
     public function monthlyOn($day = 1, $time = '0:0')
@@ -271,8 +272,8 @@ trait ManagesFrequencies
     /**
      * 每月执行两次
      *
-     * @param  int $first
-     * @param  int $second
+     * @param int $first
+     * @param int $second
      * @return $this
      */
     public function twiceMonthly($first = 1, $second = 16)
@@ -353,7 +354,7 @@ trait ManagesFrequencies
     /**
      * 按周设置天执行
      *
-     * @param  array|mixed $days
+     * @param array|mixed $days
      * @return $this
      */
     public function days($days)
@@ -366,7 +367,7 @@ trait ManagesFrequencies
     /**
      * 设置时区
      *
-     * @param  \DateTimeZone|string $timezone
+     * @param DateTimeZone|string $timezone
      * @return $this
      */
     public function timezone($timezone)

@@ -11,15 +11,14 @@
     "require": {
         "topthink/framework": "^6.0",
         "mtdowling/cron-expression": "^1.2",
-        "jenssegers/date": "^3.2",
-        "symfony/process": "^4.3"
+        "symfony/process": "^4.4",
+        "nesbot/carbon": "^2.28"
     },
     "autoload": {
         "psr-4": {
             "yunwuxin\\cron\\": "src/cron"
         }
     },
-    "minimum-stability": "dev",
     "extra": {
         "think": {
             "config": {

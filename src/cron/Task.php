@@ -2,9 +2,10 @@
 
 namespace yunwuxin\cron;
 
+use Carbon\Carbon;
 use Closure;
 use Cron\CronExpression;
-use Jenssegers\Date\Date;
+use DateTimeZone;
 use think\Cache;
 
 abstract class Task
@@ -12,7 +13,7 @@ abstract class Task
 
     use ManagesFrequencies;
 
-    /** @var \DateTimeZone|string 时区 */
+    /** @var DateTimeZone|string 时区 */
     public $timezone;
 
     /** @var string 任务周期 */
@@ -45,7 +46,7 @@ abstract class Task
      */
     public function isDue()
     {
-        $date = Date::now($this->timezone);
+        $date = Carbon::now($this->timezone);
 
         return CronExpression::factory($this->expression)->isDue($date->toDateTimeString());
     }
