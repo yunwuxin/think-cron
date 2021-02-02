@@ -3,7 +3,6 @@
 namespace yunwuxin\cron;
 
 use Carbon\Carbon;
-use DateTimeZone;
 
 trait ManagesFrequencies
 {
@@ -367,7 +366,7 @@ trait ManagesFrequencies
     /**
      * 设置时区
      *
-     * @param DateTimeZone|string $timezone
+     * @param string $timezone
      * @return $this
      */
     public function timezone($timezone)
