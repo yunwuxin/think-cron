@@ -16,7 +16,7 @@ abstract class Task
     public $timezone;
 
     /** @var string 任务周期 */
-    public $expression = '* * * * * *';
+    public $expression = '* * * * *';
 
     /** @var bool 任务是否可以重叠执行 */
     public $withoutOverlapping = false;
