@@ -4,9 +4,11 @@ namespace yunwuxin\cron\command;
 
 use Carbon\Carbon;
 use think\console\Command;
-use think\console\Input;
-use think\console\Output;
-use yunwuxin\cron\Task;
+use think\exception\Handle;
+use yunwuxin\cron\event\TaskFailed;
+use yunwuxin\cron\event\TaskProcessed;
+use yunwuxin\cron\event\TaskSkipped;
+use yunwuxin\cron\Scheduler;
 
 class Run extends Command
 {
@@ -19,62 +21,36 @@ class Run extends Command
         $this->setName('cron:run');
     }
 
-    public function execute(Input $input, Output $output)
+    public function handle(Scheduler $scheduler)
     {
-        $tasks = $this->app->config->get('cron.tasks');
+        $this->listenForEvents();
 
-        foreach ($tasks as $taskClass) {
-
-            if (is_subclass_of($taskClass, Task::class)) {
-
-                /** @var Task $task */
-                $task = $this->app->invokeClass($taskClass);
-                if ($task->isDue()) {
-
-                    if (!$task->filtersPass()) {
-                        continue;
-                    }
-
-                    if ($task->onOneServer) {
-                        $this->runSingleServerTask($task);
-                    } else {
-                        $this->runTask($task);
-                    }
-
-                    $output->writeln("Task {$taskClass} run at " . Carbon::now());
-                }
-            }
-        }
+        $scheduler->run();
     }
 
     /**
-     * @param $task Task
-     * @return bool
+     * 注册事件
      */
-    protected function serverShouldRun($task)
+    protected function listenForEvents()
     {
-        $key = $task->mutexName() . $this->startedAt->format('Hi');
-        if ($this->app->cache->has($key)) {
-            return false;
-        }
-        $this->app->cache->set($key, true, 60);
-        return true;
+        $this->app->event->listen(TaskProcessed::class, function (TaskProcessed $event) {
+            $this->output->writeln("Task {$event->getName()} run at " . Carbon::now());
+        });
+
+        $this->app->event->listen(TaskSkipped::class, function (TaskSkipped $event) {
+            $this->output->writeln('<info>Skipping task (has already run on another server):</info> ' . $event->getName());
+        });
+
+        $this->app->event->listen(TaskFailed::class, function (TaskFailed $event) {
+            $this->output->writeln("Task {$event->getName()} failed at " . Carbon::now());
+
+            /** @var Handle $handle */
+            $handle = $this->app->make(Handle::class);
+
+            $handle->renderForConsole($this->output, $event->exception);
+
+            $handle->report($event->exception);
+        });
     }
 
-    protected function runSingleServerTask($task)
-    {
-        if ($this->serverShouldRun($task)) {
-            $this->runTask($task);
-        } else {
-            $this->output->writeln('<info>Skipping task (has already run on another server):</info> ' . get_class($task));
-        }
-    }
-
-    /**
-     * @param $task Task
-     */
-    protected function runTask($task)
-    {
-        $task->run();
-    }
 }

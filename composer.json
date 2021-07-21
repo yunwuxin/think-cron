@@ -10,7 +10,7 @@
     ],
     "require": {
         "topthink/framework": "^6.0",
-        "symfony/process": "^4.4",
+        "symfony/process": "^4.4|^5.0",
         "nesbot/carbon": "^2.28",
         "dragonmantank/cron-expression": "^3.0"
     },
@@ -28,5 +28,8 @@
                 "yunwuxin\\cron\\Service"
             ]
         }
+    },
+    "require-dev": {
+        "topthink/think-swoole": "^4.0"
     }
 }
