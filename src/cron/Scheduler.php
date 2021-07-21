@@ -25,6 +25,7 @@ class Scheduler
 
     public function __construct(App $app)
     {
+        $this->app   = $app;
         $this->tasks = $app->config->get('cron.tasks', []);
         $this->cache = $app->cache->store($app->config->get('cron.store', null));
     }
