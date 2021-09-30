@@ -38,7 +38,7 @@ class Scheduler
             if (is_subclass_of($taskClass, Task::class)) {
 
                 /** @var Task $task */
-                $task = $this->app->invokeClass($taskClass);
+                $task = $this->app->invokeClass($taskClass, [$this->cache]);
                 if ($task->isDue()) {
 
                     if (!$task->filtersPass()) {
@@ -86,7 +86,7 @@ class Scheduler
     protected function runTask($task)
     {
         try {
-            $task->run();
+            $task->run($this->app);
         } catch (Exception $e) {
             $this->app->event->trigger(new TaskFailed($task, $e));
         }

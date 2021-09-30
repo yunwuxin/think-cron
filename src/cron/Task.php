@@ -4,6 +4,7 @@ namespace yunwuxin\cron;
 
 use Closure;
 use Cron\CronExpression;
+use think\App;
 use think\Cache;
 
 abstract class Task
@@ -11,8 +12,8 @@ abstract class Task
 
     use ManagesFrequencies;
 
-    /** @var string 时区 */
-    public $timezone;
+    /** @var string|null 时区 */
+    public $timezone = null;
 
     /** @var string 任务周期 */
     public $expression = '* * * * *';
@@ -62,7 +63,7 @@ abstract class Task
      */
     abstract protected function execute();
 
-    final public function run()
+    final public function run(App $app)
     {
         if ($this->withoutOverlapping &&
             !$this->createMutex()) {
@@ -74,7 +75,7 @@ abstract class Task
         });
 
         try {
-            $this->execute();
+            $app->invoke([$this, 'execute']);
         } finally {
             $this->removeMutex();
         }
