@@ -67,7 +67,7 @@ abstract class Task
      */
     protected function execute()
     {
-        $this->app->invoke([$this, 'handle']);
+        $this->app->invoke([$this, 'handle'], [], true);
     }
 
     final public function run()
