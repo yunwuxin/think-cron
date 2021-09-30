@@ -33,8 +33,12 @@ abstract class Task
     /** @var Cache */
     protected $cache;
 
-    public function __construct(Cache $cache)
+    /** @var App */
+    protected $app;
+
+    public function __construct(App $app, Cache $cache)
     {
+        $this->app   = $app;
         $this->cache = $cache;
         $this->configure();
     }
@@ -61,9 +65,12 @@ abstract class Task
      * 执行任务
      * @return mixed
      */
-    abstract protected function execute();
+    protected function execute()
+    {
+        $this->app->invoke([$this, 'handle']);
+    }
 
-    final public function run(App $app)
+    final public function run()
     {
         if ($this->withoutOverlapping &&
             !$this->createMutex()) {
@@ -75,7 +82,7 @@ abstract class Task
         });
 
         try {
-            $app->invoke([$this, 'execute']);
+            $this->execute();
         } finally {
             $this->removeMutex();
         }

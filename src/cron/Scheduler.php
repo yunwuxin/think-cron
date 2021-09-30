@@ -86,7 +86,7 @@ class Scheduler
     protected function runTask($task)
     {
         try {
-            $task->run($this->app);
+            $task->run();
         } catch (Exception $e) {
             $this->app->event->trigger(new TaskFailed($task, $e));
         }
