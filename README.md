@@ -37,7 +37,7 @@ class DemoTask extends Task
 ```
 
 ### 配置
-> 配置文件位于 application/extra/cron.php
+> 配置文件位于 config/cron.php
 
 ```
 return [
