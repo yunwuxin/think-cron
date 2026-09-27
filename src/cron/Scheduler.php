@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Exception;
 use think\App;
 use think\cache\Driver;
+use yunwuxin\cron\event\TaskEvent;
 use yunwuxin\cron\event\TaskFailed;
 use yunwuxin\cron\event\TaskProcessed;
 use yunwuxin\cron\event\TaskSkipped;
@@ -32,29 +33,60 @@ class Scheduler
 
     public function run()
     {
+        foreach ($this->dueTasks() as $task) {
+            $this->processTask($task);
+        }
+    }
+
+    /**
+     * 获取本次调度到期的任务（以调用时间为调度基准）
+     * @return Task[]
+     */
+    public function dueTasks()
+    {
         $this->startedAt = Carbon::now();
+
+        $tasks = [];
+
         foreach ($this->tasks as $taskClass) {
 
             if (is_subclass_of($taskClass, Task::class)) {
 
                 /** @var Task $task */
                 $task = $this->app->invokeClass($taskClass, [$this->cache]);
-                if ($task->isDue()) {
-
-                    if (!$task->filtersPass()) {
-                        continue;
-                    }
-
-                    if ($task->onOneServer) {
-                        $this->runSingleServerTask($task);
-                    } else {
-                        $this->runTask($task);
-                    }
-
-                    $this->app->event->trigger(new TaskProcessed($task));
+                // 统一以本次调度启动时间为基准判断是否到期，
+                // 避免前序任务执行耗时跨分钟后，后续本该执行的任务被跳过
+                if ($task->isDue($this->startedAt) && $task->filtersPass()) {
+                    $tasks[] = $task;
                 }
             }
         }
+
+        return $tasks;
+    }
+
+    /**
+     * 执行任务
+     * @param $task Task
+     */
+    public function processTask($task)
+    {
+        if ($task->onOneServer) {
+            $this->runSingleServerTask($task);
+        } else {
+            $this->runTask($task);
+        }
+
+        $this->trigger(new TaskProcessed($task));
+    }
+
+    /**
+     * 触发事件
+     * @param $event TaskEvent
+     */
+    public function trigger($event)
+    {
+        $this->app->event->trigger($event);
     }
 
     /**
@@ -76,7 +108,7 @@ class Scheduler
         if ($this->serverShouldRun($task)) {
             $this->runTask($task);
         } else {
-            $this->app->event->trigger(new TaskSkipped($task));
+            $this->trigger(new TaskSkipped($task));
         }
     }
 
@@ -88,7 +120,7 @@ class Scheduler
         try {
             $task->run();
         } catch (Exception $e) {
-            $this->app->event->trigger(new TaskFailed($task, $e));
+            $this->trigger(new TaskFailed($task, $e));
         }
     }
 }

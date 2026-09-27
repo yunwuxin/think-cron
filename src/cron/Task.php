@@ -45,13 +45,14 @@ abstract class Task
 
     /**
      * 是否到期执行
+     * @param string|\DateTimeInterface $currentTime 判定基准时间
      * @return bool
      */
-    public function isDue()
+    public function isDue($currentTime = 'now')
     {
         $cronExpression = new CronExpression($this->expression);
 
-        return $cronExpression->isDue('now', $this->timezone);
+        return $cronExpression->isDue($currentTime, $this->timezone);
     }
 
     /**
