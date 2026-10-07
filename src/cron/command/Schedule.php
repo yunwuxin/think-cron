@@ -19,7 +19,7 @@ class Schedule extends Command
     {
 
         if ('\\' == DIRECTORY_SEPARATOR) {
-            $command = 'start /B "' . PHP_BINARY . '" think cron:run';
+            $command = 'start /B "" "' . PHP_BINARY . '" think cron:run';
         } else {
             $command = 'nohup "' . PHP_BINARY . '" think cron:run >> /dev/null 2>&1 &';
         }
